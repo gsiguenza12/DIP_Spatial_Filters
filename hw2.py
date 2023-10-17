@@ -110,7 +110,6 @@ def nearest_neighbor_interpolation(image, zoom_factor_height, zoom_factor_width)
 ''' START OF HW2 FILTERS CODE '''
 
 
-# TODO: Test function
 # Used to generate the kernel for each of the spatial filtering options
 def generate_laplacian_kernel(resolution):
     # Ensure the resolution is odd
@@ -158,17 +157,22 @@ def apply_smoothing_filter(image, mask_size):
 # the variations in the data. Useful for removing salt and pepper noise.
 def apply_median_filter(image, mask_size):
     # Implement a median filter logic using the median of pixel values in the neighborhood
+    filtered_image = np.zeros_like(image)
 
     # zeros must be padded around the row edge and the column edge.
+    padding = mask_size//2
 
     # using the specified kernel size, list the pixel values covered by the kernel
     # determine median level, if the kernel covers an even number of pixels, the avg of two median values is used.
-
     # slide the kernel mask until all the pixels have been iterated through.
-    return image
+    for i in range(padding, image.shape[0] - padding):
+        for j in range(padding, image.shape[1] - padding):
+            neighborhood = image[i - padding:i + padding + 1, j - padding:j + padding + 1]
+            filtered_image[i, j] = np.median(neighborhood)
+
+    return filtered_image
 
 
-# TODO: Test function
 # Function to apply a sharpening Laplacian filter, derivative based filter for edge detection?
 # highlight rapid intensity changes in an image, which correspond to edges.
 # in other words, highlights intensity discontinuities and de-emphasizes regions with slowly varying gray levels
@@ -205,7 +209,6 @@ def apply_sharpening_laplacian_filter(image, mask):
     return sharpened_image
 
 
-# TODO: Test function
 # Function to apply a high-boosting filter, a sharpening technique that employs Laplacian filter with modification.
 # obtained by adding the amplified Laplacian scaled by A to the original image.
 # A stands for amplification factor - determines then extent of sharpening or boosting applied to an image.
@@ -215,9 +218,9 @@ def apply_high_boost_filter(image, A, mask):
 
     # Sharpen the original image using the Laplacian filter
     # laplacian = cv2.Laplacian(image, cv2.CV_64F)
-    laplacian = generate_laplacian_kernel(image, mask)
+    laplacian = apply_sharpening_laplacian_filter(image, mask)
 
-    sharpened_image = image - A * laplacian
+    sharpened_image = image - (A * laplacian)
 
     # Ensure pixel values are within [0, 255] range
     high_boost_filtered_image = np.clip(sharpened_image, 0, 255)
@@ -294,6 +297,18 @@ def calc_hist(image):
     plt.show()
 
 
+def remove_bit_planes(image, bits_to_remove):
+    max_value = 255  # assuming 8-bit image
+    mask = np.zeros_like(image, dtype=np.uint8)
+    for bit in bits_to_remove:
+        mask |= 1 << bit
+
+    # remove specified bit planes by bitwise AND with compliment of the mask
+    processed_image = image & ~mask
+
+    return processed_image
+
+
 '''
 1.
 Vary the spatial resolution of this image from the given scale to 512x512 and down to 32x32 and then zoom it again to 
@@ -310,6 +325,7 @@ how many number of bits or provide a selection from a drop-down menu.
 '''
 
 
+# this function quantizes an image to a specified number of bits.
 # Function to perform bit plane slicing for image
 def reduce_gray_resolution(image, bits):
     img = np.asarray(image)
@@ -512,17 +528,18 @@ def process_image():
     calc_hist(zoomed_image)
     # eq_image = local_histogram_equalization(image, mask_size)  # global histogram eq
     # kernel = np.ones((3, 3)) / 9
-    smoothed_image = apply_smoothing_filter(image, mask_size)
-    # median_filtered_image = apply_median_filter(image, mask_size)
-    # sharpened_image = apply_sharpening_laplacian_filter(image)
-    # high_boost_filtered_image = apply_high_boost_filter(image, A)
+    # smoothed_image = apply_smoothing_filter(image, mask_size)
+    median_filtered_image = apply_median_filter(image, mask_size)
+    # sharpened_image = apply_sharpening_laplacian_filter(image, mask_size)
+    # high_boost_filtered_image = apply_high_boost_filter(image, A, mask_size)
+    # lower_order_removed = remove_bit_planes(image, [7])
 
     """ These calls are the simplified version of what I had before """
     # Convert images to PIL format for displaying in the GUI
     original_image = ImageTk.PhotoImage(Image.fromarray(image))
     # processed_image = ImageTk.PhotoImage(Image.fromarray(zoomed_image))  # sets image to zoomed ^
     # processed_image = ImageTk.PhotoImage(Image.fromarray(eq_image))  # sets image to HE
-    processed_image = ImageTk.PhotoImage(Image.fromarray(smoothed_image))
+    processed_image = ImageTk.PhotoImage(Image.fromarray(median_filtered_image))
 
     set_images(original_image, processed_image)
 
