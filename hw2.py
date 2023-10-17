@@ -106,7 +106,7 @@ def nearest_neighbor_interpolation(image, zoom_factor_height, zoom_factor_width)
     return zoomed_image
 
 
-# TODO: finish stubbed functions
+
 ''' START OF HW2 FILTERS CODE '''
 
 
@@ -152,7 +152,7 @@ def apply_smoothing_filter(image, mask_size):
     return output_image
 
 
-# TODO: Implement median filter function
+
 # Function to apply a median filter, only removes noise as opposed to mean filter which smooths out
 # the variations in the data. Useful for removing salt and pepper noise.
 def apply_median_filter(image, mask_size):
@@ -524,7 +524,7 @@ def process_image():
     A = float(A) if A.replace('.', '', 1).isdigit() else 1.0
 
     # Apply the respective filters
-    # TODO: for testing histogram equalization and spatial filters, move into it's own function.
+
     calc_hist(zoomed_image)
     # eq_image = local_histogram_equalization(image, mask_size)  # global histogram eq
     # kernel = np.ones((3, 3)) / 9
@@ -543,22 +543,7 @@ def process_image():
 
     set_images(original_image, processed_image)
 
-    # TODO: use this to display (print in GUI) HE image
-    # print(eq_image)
-    # display_label = tk.Label(root, text=f"Local Equalization (Mask Size: {mask_size}x{mask_size})")
-    # display_label.pack(anchor=tk.W)
-    # equalized_image_local_display = ImageTk.PhotoImage(Image.fromarray(eq_image))
-    # display_label.config(image=equalized_image_local_display)
-    # display_label.image = equalized_image_local_display
 
-    # GUI
-    # Define the zoom factor for width and height (downsampling to 32x32 pixels)
-    # zoom_factor_width = 32 / image.shape[1]  # Scaling factor for width
-    # zoom_factor_height = 32 / image.shape[0]  # Scaling factor for height
-
-    # zoomed_image = nearest_neighbor_interpolation(image, zoom_factor_height, zoom_factor_width)
-    # resize image
-    # zoomed_image = nearest_neighbor_interpolation(zoomed_image, 1 / zoom_factor_height, 1 / zoom_factor_width)
 
 
 # TODO: improve GUI, clean up code for readability
